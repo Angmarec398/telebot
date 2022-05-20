@@ -26,6 +26,16 @@ def start_callback_message(message: types.CallbackQuery):
     return markup
 
 
+def start_sert_exam():
+    markup = types.InlineKeyboardMarkup()
+    start_1 = types.InlineKeyboardButton(text="Найти сертификат 🔎", callback_data='search_setr')
+    start_2 = types.InlineKeyboardButton(text="Список сертификатов 📋", callback_data="sert_list")
+    markup.add(start_1, start_2)
+    start_3 = types.InlineKeyboardButton(text="Назад в меню", callback_data="start_menu")
+    markup.add(start_3)
+    return markup
+
+
 menu_button = types.InlineKeyboardButton('Назад')
 main_menu = types.ReplyKeyboardMarkup(resize_keyboard=True).add(menu_button)
 

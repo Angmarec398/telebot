@@ -1,14 +1,21 @@
 from aiogram import types, Dispatcher
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from create_bot import bot, auth_token
 from data_base import sqlite_db
 from analytics import history
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher.filters import Text
+from keyboards import keyboards
 
 
 # Раздел "Проверка сертификатов"
 @bot.callback_query_handler(text='Сертификаты')
+async def sert_exam(message: types.CallbackQuery):
+    await history.analytics_callback(message=message)
+    await message.message.edit_reply_markup(keyboards.start_sert_exam())
+
+
+@bot.callback_query_handler(text='sert_list')
 async def sert_exam(message: types.CallbackQuery):
     await history.analytics_callback(message=message)
     await sqlite_db.sql_sert_read(message=message)
@@ -25,15 +32,7 @@ async def start_search_sert(callback_sert: types.CallbackQuery):
     await FSMSert.sert.set()
 
 
-async def cancel_handler(message: types.Message, state: FSMContext):
-    current_stait = await state.get_state()
-    if current_stait is None:
-        return
-    await state.finish()
-    await sqlite_db.sql_sert_read(message=message)
-
-
-async def save_start(message: types.Message, state: FSMContext):
+async def save_start(message: types.CallbackQuery, state: FSMContext):
     if len(message.text) != 5:
         await auth_token.send_message(message.from_user.id, text='Неверное количество символов')
     else:
@@ -41,12 +40,11 @@ async def save_start(message: types.Message, state: FSMContext):
             data['sert'] = message.text
         await auth_token.send_message(message.from_user.id,
                                       text=f'Проверяются сертификаты заканчивающиеся на {data["sert"]}...')
-        await sqlite_db.sql_sert_search(message=message)
+        await sqlite_db.sql_sert_search(call_message=message)
         await state.finish()
 
 
 def reg_handlers_sert(bot: Dispatcher):
-    bot.register_message_handler(sert_exam, content_types=['text'], text='Сертификаты')
-    bot.register_message_handler(cancel_handler, state='*', content_types=['text'], text='Отмена')
-    bot.register_message_handler(cancel_handler, Text(equals='отмена', ignore_case=True), state='*')
+    # bot.register_message_handler(cancel_handler, state='*', content_types=['text'], text='Отмена')
+    # bot.register_message_handler(cancel_handler, Text(equals='отмена', ignore_case=True), state='*')
     bot.register_message_handler(save_start, state=FSMSert.sert)

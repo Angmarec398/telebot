@@ -74,20 +74,25 @@ async def sql_sert_read(message: types.CallbackQuery):
 
 
 # Вывод данных из БД по сертификатам
-async def sql_sert_search(message: types.CallbackQuery):
+async def sql_sert_search(call_message: types.CallbackQuery):
     table = 'sert_list'
     name_collum = 'numbersert'
     cur.execute(f'SELECT * FROM {table}')
     all_data = cur.fetchall()
     data = []
     for item in all_data:
-        if str(item[3][-5:]) == message.message.text:
+        if str(item[3][-5:]) == call_message.text:
             data.append(item)
     if len(data) == 0:
-        await auth_token.send_message(message.from_user.id, 'Данного сертификата нет в базе')
+        await auth_token.send_message(call_message.from_user.id, text='Данного сертификата нет в базе',
+                                      reply_markup=keyboards.keyboard_search(data=data, table=table, collum_text=3,
+                                                                             row_width=1, count_button=10,
+                                                                             collum_callback=3,
+                                                                             name_collum=name_collum)
+                                      )
     else:
-
-        await message.message.edit_reply_markup(keyboards.keyboard_search(data=data, table=table,
-                                                                          collum_text=3, row_width=1,
-                                                                          count_button=10, collum_callback=3,
-                                                                          name_collum=name_collum))
+        await auth_token.send_message(call_message.from_user.id, text='Результат:',
+                                      reply_markup=keyboards.keyboard_search(data=data, table=table, collum_text=3,
+                                                                             row_width=1,count_button=10,
+                                                                             collum_callback=3,
+                                                                             name_collum=name_collum))
