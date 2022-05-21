@@ -29,11 +29,9 @@ async def replace_menu(callback: types.CallbackQuery):
 # Список комманд (пока не вызывается)
 async def set_default_commands(bot):
     await bot.bot.set_my_commands([
-        types.BotCommand("start", "Запустить бота"),
+        types.BotCommand("start", "Открыть меню"),
         types.BotCommand("help", "Помощь"),
-        types.BotCommand("test", "Тест"),
-        types.BotCommand("form", "Форма"),
-        types.BotCommand("menu", "Меню"),
+        types.BotCommand("search_setr", "Найти сертификат")
     ])
 
 

@@ -31,7 +31,6 @@ async def sql_read(message: types.CallbackQuery):
     await message.message.edit_reply_markup(keyboards.keyboard_search(data))
 
 
-
 async def sql_reach_info(callback_query: types.CallbackQuery):
     """ Подробная информация по записям """
     await auth_token.answer_callback_query(callback_query.id)

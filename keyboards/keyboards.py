@@ -141,7 +141,7 @@ async def brain(callback: types.CallbackQuery):
 # async def brain(callback: types.CallbackQuery):
 #     await sqlite_db.stoptopupcall(callback_query=callback)
 
-def plastic_price_info(actual_price, price_data, row_width=2, plastic_sort=None):
+def plastic_price_info(actual_price, row_width=2, plastic_sort=None):
     markup = InlineKeyboardMarkup()
     markup.row_width = row_width
     markup.add(*[InlineKeyboardButton(text=button[1],
@@ -164,7 +164,7 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
     elif sheet_name == 'pp':
         pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
         price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
@@ -172,7 +172,7 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
     elif sheet_name == 'pvh':
         pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
         price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
@@ -180,4 +180,4 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')

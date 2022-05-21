@@ -35,27 +35,21 @@ async def sert_exam(message: types.CallbackQuery):
 @bot.callback_query_handler(text='plastic-pe')
 async def plastic_pe(callback_message: types.CallbackQuery):
     actual_pe_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
-    price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
-    await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pe_price,
-                                                                                  price_data=price_data, row_width=2,
+    await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pe_price, row_width=2,
                                                                                   plastic_sort='pe'))
 
 
 @bot.callback_query_handler(text='plastic-pp')
 async def plastic_pe(callback_message: types.CallbackQuery):
     actual_pp_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
-    price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
     await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pp_price,
-                                                                                  price_data=price_data,
                                                                                   row_width=2, plastic_sort='pp'))
 
 
 @bot.callback_query_handler(text='plastic-pvh')
 async def plastic_pe(callback_message: types.CallbackQuery):
     actual_pvh_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
-    price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
     await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pvh_price,
-                                                                                  price_data=price_data,
                                                                                   row_width=2, plastic_sort='pvh'))
 # #
 # @bot.message_handler(Text(equals="Полиэтилен", ignore_case=True), state='*')
