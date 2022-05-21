@@ -1,14 +1,14 @@
 from aiogram import types, Dispatcher
-from aiogram.dispatcher.filters import Text
 from googleapiclient import discovery
 from google.oauth2 import service_account
 import os
 from analytics import history
 from create_bot import bot
-from keyboards.keyboards import menu_button
+from keyboards import keyboards
 
 
 def sheet_data(link, list):
+    """ Считываем данные с Google Sheets"""
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets",
     ]
@@ -26,72 +26,89 @@ def sheet_data(link, list):
     return values.get('values')
 
 
-# Раздел "Стоимость полиэтилена"
-async def plastic_price(message: types.Message):
-    await history.analytics(message=message)
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button_pe = types.KeyboardButton("Полиэтилен")
-    markup.add(button_pe)
-    button_pvh = types.KeyboardButton("Поливинилхлорид")
-    markup.add(button_pvh)
-    button_pvh = types.KeyboardButton("Полипропилен")
-    markup.add(button_pvh)
-    await message.answer('Выберите сырье', reply_markup=markup)
-    await message.delete()
+@bot.callback_query_handler(text='plastic_price')
+async def sert_exam(message: types.CallbackQuery):
+    await history.analytics_callback(message=message)
+    await message.message.edit_reply_markup(keyboards.start_plastic_price())
 
 
-@bot.message_handler(Text(equals="Полиэтилен", ignore_case=True), state='*')
-async def pe(message: types.Message):
-    await history.analytics(message=message)
-    await message.answer("Пожалуйста, подождите...")
+@bot.callback_query_handler(text='plastic-pe')
+async def plastic_pe(callback_message: types.CallbackQuery):
     actual_pe_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
     price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
-    await message.answer(f"<b>Изготовитель; марка; стоимость на {str(price_data)[3:13]} за тонну</b>")
-    for price_pe in actual_pe_price:
-        if len(price_pe) == 0:
-            continue
-        else:
-            await message.answer(f"<b>{price_pe[0]}</b>: {price_pe[1]}\n{price_pe[2]}")
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(menu_button)
-    await message.answer('Что-то еще?', reply_markup=markup)
+    await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pe_price,
+                                                                                  price_data=price_data, row_width=2,
+                                                                                  plastic_sort='pe'))
 
 
-@bot.message_handler(Text(equals="Поливинилхлорид", ignore_case=True), state='*')
-async def pvh(message: types.Message):
-    await history.analytics(message=message)
-    await message.answer("Пожалуйста, подождите...")
-    actual_pvh_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
-    price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
-    await message.answer(f"<b>Изготовитель; марка; стоимость на {str(price_data)[3:13]} за тонну</b>")
-    for price_pvh in actual_pvh_price:
-        if len(price_pvh) == 0:
-            continue
-        else:
-            await message.answer(f"<b>{price_pvh[0]}</b>: {price_pvh[1]}\n{price_pvh[2]}")
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(menu_button)
-    await message.answer('Что-то еще?', reply_markup=markup)
-
-
-@bot.message_handler(Text(equals="Полипропилен", ignore_case=True), state='*')
-async def pp(message: types.Message):
-    await history.analytics(message=message)
-    await message.answer("Пожалуйста, подождите...")
+@bot.callback_query_handler(text='plastic-pp')
+async def plastic_pe(callback_message: types.CallbackQuery):
     actual_pp_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
     price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
-    await message.answer(f"<b>Изготовитель; марка; стоимость на {str(price_data)[3:13]} за тонну</b>")
-    for price_pp in actual_pp_price:
-        if len(price_pp) == 0:
-            continue
-        else:
-            await message.answer(f"<b>{price_pp[0]}</b>: {price_pp[1]}\n{price_pp[2]}")
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(menu_button)
-    await message.answer('Что-то еще?', reply_markup=markup)
+    await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pp_price,
+                                                                                  price_data=price_data,
+                                                                                  row_width=2, plastic_sort='pp'))
 
 
-def reg_handlers_plastic_price(bot: Dispatcher):
-    bot.register_message_handler(plastic_price, content_types=['text'], text='Стоимость сырья')
+@bot.callback_query_handler(text='plastic-pvh')
+async def plastic_pe(callback_message: types.CallbackQuery):
+    actual_pvh_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
+    price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
+    await callback_message.message.edit_reply_markup(keyboards.plastic_price_info(actual_price=actual_pvh_price,
+                                                                                  price_data=price_data,
+                                                                                  row_width=2, plastic_sort='pvh'))
+# #
+# @bot.message_handler(Text(equals="Полиэтилен", ignore_case=True), state='*')
+# async def pe(message: types.Message):
+#     await history.analytics(message=message)
+#     await message.answer("Пожалуйста, подождите...")
+#     actual_pe_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
+#     price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
+#     await message.answer(f"<b>Изготовитель; марка; стоимость на {str(price_data)[3:13]} за тонну</b>")
+#     for price_pe in actual_pe_price:
+#         if len(price_pe) == 0:
+#             continue
+#         else:
+#             await message.answer(f"<b>{price_pe[0]}</b>: {price_pe[1]}\n{price_pe[2]}")
+#     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+#     markup.add(menu_button)
+#     await message.answer('Что-то еще?', reply_markup=markup)
+#
+#
+# @bot.message_handler(Text(equals="Поливинилхлорид", ignore_case=True), state='*')
+# async def pvh(message: types.Message):
+#     await history.analytics(message=message)
+#     await message.answer("Пожалуйста, подождите...")
+#     actual_pvh_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
+#     price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
+#     await message.answer(f"<b>Изготовитель; марка; стоимость на {str(price_data)[3:13]} за тонну</b>")
+#     for price_pvh in actual_pvh_price:
+#         if len(price_pvh) == 0:
+#             continue
+#         else:
+#             await message.answer(f"<b>{price_pvh[0]}</b>: {price_pvh[1]}\n{price_pvh[2]}")
+#     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+#     markup.add(menu_button)
+#     await message.answer('Что-то еще?', reply_markup=markup)
+#
+#
+# @bot.message_handler(Text(equals="Полипропилен", ignore_case=True), state='*')
+# async def pp(message: types.Message):
+#     await history.analytics(message=message)
+#     await message.answer("Пожалуйста, подождите...")
+#     actual_pp_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
+#     price_data = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
+#     await message.answer(f"<b>Изготовитель; марка; стоимость на {str(price_data)[3:13]} за тонну</b>")
+#     for price_pp in actual_pp_price:
+#         if len(price_pp) == 0:
+#             continue
+#         else:
+#             await message.answer(f"<b>{price_pp[0]}</b>: {price_pp[1]}\n{price_pp[2]}")
+#     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+#     markup.add(menu_button)
+#     await message.answer('Что-то еще?', reply_markup=markup)
 
+
+# def reg_handlers_plastic_price(bot: Dispatcher):
+#     bot.register_message_handler(sert_exam, content_types=['text'], text='Стоимость сырья')
 

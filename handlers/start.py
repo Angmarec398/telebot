@@ -7,7 +7,7 @@ from keyboards.keyboards import start_callback_message
 async def start_message(message: types.Message):
     markup = types.InlineKeyboardMarkup()
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
-    start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="Стоимость сырья")
+    start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
     markup.add(start_1, start_2)
     start_3 = types.InlineKeyboardButton(text="Чек-листы", callback_data="Чек-листы")
     if message.from_user.id in admin_list:

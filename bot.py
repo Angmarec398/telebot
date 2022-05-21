@@ -12,7 +12,7 @@ async def online(_):
 if __name__ == '__main__':
     # Регистрируем хендлеры
     start.reg_handlers_start_message(bot=bot)
-    plastic_price.reg_handlers_plastic_price(bot=bot)
+    # plastic_price.reg_handlers_plastic_price(bot=bot)
     admin.reg_handlers_admin(bot=bot)
     sert_exam.reg_handlers_sert(bot=bot)
 

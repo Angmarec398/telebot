@@ -5,10 +5,8 @@ from keyboards import keyboards
 
 
 # Раздел работы с SQL базой данных
-
-
-# Создание БД
 def sql_start():
+    """ Создание БД """
     global base, cur
     base = sqlite3.connect('rapts.db')
     cur = base.cursor()
@@ -19,22 +17,23 @@ def sql_start():
     base.commit()
 
 
-# Запись данных в машину состояний
 async def sql_add_command(state):
+    """ Запись данных в машину состояний """
     async with state.proxy() as data:
         cur.execute('INSERT INTO info VALUES(?,?,?,?)', tuple(data.values()))
         base.commit()
 
 
-# Вывод данных из машины состояний
 async def sql_read(message: types.CallbackQuery):
+    """ Вывод данных из машины состояний """
     cur.execute('''SELECT * FROM info''')
     data = cur.fetchall()
     await message.message.edit_reply_markup(keyboards.keyboard_search(data))
 
 
-# Подробная информация по записям
+
 async def sql_reach_info(callback_query: types.CallbackQuery):
+    """ Подробная информация по записям """
     await auth_token.answer_callback_query(callback_query.id)
     collum = (str(callback_query['data'])).split(':')[2]
     table = (str(callback_query['data'])).split(':')[3]
@@ -52,8 +51,8 @@ async def sql_reach_info(callback_query: types.CallbackQuery):
                 return row
 
 
-# Запись данных в БД в раздел аналитики
 async def sql_save_analytics(data):
+    """ Запись данных в БД в раздел аналитики """
     try:
         cur.execute('INSERT INTO analytics VALUES(?,?,?,?)', data)
         base.commit()
@@ -61,8 +60,8 @@ async def sql_save_analytics(data):
         pass
 
 
-# Вывод данных из БД по сертификатам
 async def sql_sert_read(message: types.CallbackQuery):
+    """ Вывод данных из БД по списки сертификатов """
     table = 'sert_list'
     name_collum = 'numbersert'
     cur.execute(f'SELECT * FROM {table}')
@@ -73,8 +72,8 @@ async def sql_sert_read(message: types.CallbackQuery):
                                                                       name_collum=name_collum))
 
 
-# Вывод данных из БД по сертификатам
 async def sql_sert_search(call_message: types.CallbackQuery):
+    """ Вывод данных из БД по найденым сертификатам """
     table = 'sert_list'
     name_collum = 'numbersert'
     cur.execute(f'SELECT * FROM {table}')

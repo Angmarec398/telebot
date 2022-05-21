@@ -1,5 +1,4 @@
 from aiogram import types, Dispatcher
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from create_bot import bot, auth_token
 from data_base import sqlite_db
 from analytics import history
@@ -21,7 +20,6 @@ async def sert_exam(message: types.CallbackQuery):
     await sqlite_db.sql_sert_read(message=message)
 
 
-# Раздел "Проверка сертификатов"
 class FSMSert(StatesGroup):
     sert = State()
 
@@ -45,6 +43,4 @@ async def save_start(message: types.CallbackQuery, state: FSMContext):
 
 
 def reg_handlers_sert(bot: Dispatcher):
-    # bot.register_message_handler(cancel_handler, state='*', content_types=['text'], text='Отмена')
-    # bot.register_message_handler(cancel_handler, Text(equals='отмена', ignore_case=True), state='*')
     bot.register_message_handler(save_start, state=FSMSert.sert)
