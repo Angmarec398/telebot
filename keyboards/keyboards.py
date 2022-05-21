@@ -152,19 +152,32 @@ def plastic_price_info(actual_price, price_data, row_width=2, plastic_sort=None)
     return markup
 
 
-# @bot.callback_query_handler(text_contains='plastic_task')
-# async def plastic_brain(callback: types.CallbackQuery):
-#     """ Запрос подробной информации по полимерам при нажатии на Inline-кнопку """
-#     print(callback)
-    # row = await sqlite_db.sql_reach_info(callback_query=callback)
-    # if (str(callback['data'])).split(':')[3] == 'info':
-    #     await auth_token.send_message(callback.from_user.id,
-    #                                   f'{row[0][0]},\n{row[0][1]},\n{row[0][2]}')
-    # elif (str(callback['data'])).split(':')[3] == 'sert_list':
-    #     await auth_token.send_message(callback.from_user.id,
-    #                                   f'{row[0][3]}\n{row[0][1]}\n{row[0][2]}')
-    # for price_pp in actual_price:
-    #     if len(price_pp) == 0:
-    #         continue
-    #     else:
-    #         f"<b>{price_pp[0]}</b>: {price_pp[1]}\n{price_pp[2]}"
+@bot.callback_query_handler(text_contains='plastic_task')
+async def plastic_brain(callback: types.CallbackQuery):
+    """ Запрос подробной информации по полимерам при нажатии на Inline-кнопку """
+    plastic_name = callback.data.split(':')[1]
+    sheet_name = callback.data.split(':')[2]
+    if sheet_name == 'pe':
+        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
+        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
+        for plastic_item in pp_list:
+            if plastic_item[1] == plastic_name:
+                await auth_token.send_message(callback.from_user.id,
+                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
+                                              f'Стоимость: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+    elif sheet_name == 'pp':
+        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
+        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
+        for plastic_item in pp_list:
+            if plastic_item[1] == plastic_name:
+                await auth_token.send_message(callback.from_user.id,
+                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
+                                              f'Стоимость: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+    elif sheet_name == 'pvh':
+        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
+        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
+        for plastic_item in pp_list:
+            if plastic_item[1] == plastic_name:
+                await auth_token.send_message(callback.from_user.id,
+                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
+                                              f'Стоимость: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
