@@ -15,7 +15,5 @@ import sqlite3
 # all_data = {SDR, diameter}
 # print(type(all_data))
 
-a = '0.162'
-b = 2
-
-print(float(a) + b)
+a = '156 000 - 160 000'
+print(int((a.replace(' ', '')).split('-')[0]))

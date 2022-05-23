@@ -37,15 +37,15 @@ def start_sert_exam():
     return markup
 
 
-def start_plastic_price():
+def start_plastic_price(calc=None):
     """ Стартовая клавиатура в разделе Стоимость полиэтилена """
     markup = types.InlineKeyboardMarkup()
-    start_1 = types.InlineKeyboardButton(text="Полиэтилен", callback_data='plastic-pe')
-    start_3 = types.InlineKeyboardButton(text="Полипропилен", callback_data="plastic-pp")
+    start_1 = types.InlineKeyboardButton(text="Полиэтилен", callback_data=f'plastic-pe:{calc}')
+    start_3 = types.InlineKeyboardButton(text="Полипропилен", callback_data=f"plastic-pp:{calc}")
     markup.add(start_1, start_3)
-    start_2 = types.InlineKeyboardButton(text="Поливинилхлорид", callback_data="plastic-pvh")
+    start_2 = types.InlineKeyboardButton(text="Поливинилхлорид", callback_data=f"plastic-pvh:{calc}")
     markup.add(start_2)
-    start_4 = types.InlineKeyboardButton(text="Назад в меню ↩", callback_data="start_menu")
+    start_4 = types.InlineKeyboardButton(text="Назад в меню ↩", callback_data=f"start_menu")
     markup.add(start_4)
     return markup
 
@@ -138,11 +138,12 @@ async def brain(callback: types.CallbackQuery):
                                       f'{row[0][3]}\n{row[0][1]}\n{row[0][2]}')
 
 
-def plastic_price_info(actual_price, row_width=2, plastic_sort=None):
+def plastic_price_info(actual_price, row_width=2, plastic_sort=None, calc=None):
+    """ Вывод списка быбранных полимеров """
     markup = InlineKeyboardMarkup()
     markup.row_width = row_width
     markup.add(*[InlineKeyboardButton(text=button[1],
-                                      callback_data=f'plastic_task:{button[1]}:{plastic_sort}') for
+                                      callback_data=f'plastic_task:{button[1]}:{plastic_sort}:{calc}') for
                  button in actual_price])
     button_menu = InlineKeyboardButton(text='Назад ↩', callback_data='plastic_price')
     markup.add(button_menu)
@@ -152,37 +153,40 @@ def plastic_price_info(actual_price, row_width=2, plastic_sort=None):
 @bot.callback_query_handler(text_contains='plastic_task')
 async def plastic_brain(callback: types.CallbackQuery):
     """ Запрос подробной информации по полимерам при нажатии на Inline-кнопку """
-    plastic_name = callback.data.split(':')[1]
-    sheet_name = callback.data.split(':')[2]
-    if sheet_name == 'pe':
-        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
-        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
-        for plastic_item in pp_list:
-            if plastic_item[1] == plastic_name:
-                await auth_token.send_message(callback.from_user.id,
-                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
-    elif sheet_name == 'pp':
-        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
-        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
-        for plastic_item in pp_list:
-            if plastic_item[1] == plastic_name:
-                await auth_token.send_message(callback.from_user.id,
-                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
-    elif sheet_name == 'pvh':
-        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
-        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
-        for plastic_item in pp_list:
-            if plastic_item[1] == plastic_name:
-                await auth_token.send_message(callback.from_user.id,
-                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+    if str(callback.data.split(':')[3]) != 'calc':
+        plastic_name = callback.data.split(':')[1]
+        sheet_name = callback.data.split(':')[2]
+        if sheet_name == 'pe':
+            pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
+            price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
+            for plastic_item in pp_list:
+                if plastic_item[1] == plastic_name:
+                    await auth_token.send_message(callback.from_user.id,
+                                                  f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
+                                                  f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+        elif sheet_name == 'pp':
+            pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
+            price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
+            for plastic_item in pp_list:
+                if plastic_item[1] == plastic_name:
+                    await auth_token.send_message(callback.from_user.id,
+                                                  f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
+                                                  f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+        elif sheet_name == 'pvh':
+            pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
+            price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
+            for plastic_item in pp_list:
+                if plastic_item[1] == plastic_name:
+                    await auth_token.send_message(callback.from_user.id,
+                                                  f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
+                                                  f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
 
 
 def start_calc():
     """ Стартовая клавиатура в разделе Калькулятор"""
     markup = types.InlineKeyboardMarkup()
+    tittle_button = types.InlineKeyboardButton(text='Выберите SDR', callback_data='start_menu')
+    markup.add(tittle_button)
     start_1 = types.InlineKeyboardButton(text='SDR 6', callback_data='SDR6')
     start_2 = types.InlineKeyboardButton(text='SDR 7,4', callback_data='SDR74')
     markup.add(start_1, start_2)
@@ -207,6 +211,8 @@ def diameter_calc(data, SDR=None, back_to_menu=True):
     """ Inline-кнопоки для определения диаметров """
     markup = InlineKeyboardMarkup()
     markup.row_width = 5
+    tittle_button = types.InlineKeyboardButton(text='Выберите диаметр', callback_data='start_menu')
+    markup.add(tittle_button)
     markup.add(*[InlineKeyboardButton(text=button,
                                       callback_data=f'dia_button:{button}:{SDR}') for
                  button in data])
