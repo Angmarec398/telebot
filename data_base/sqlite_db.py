@@ -95,7 +95,7 @@ async def sql_sert_search(call_message: types.CallbackQuery):
                                                                              name_collum=name_collum))
 
 
-async def sql_diameter_calc(message: types.CallbackQuery):
+async def sql_diameter_calc(message: types.CallbackQuery, price=None):
     """ Вывод данных из БД по список диаметров труб """
     cur.execute(f'SELECT Diameter FROM calc')
     SDR = message.data.lstrip('SDR')
@@ -103,11 +103,15 @@ async def sql_diameter_calc(message: types.CallbackQuery):
     data = cur.fetchall()
     [all_diameter.append(int(str(item[0]).lstrip('\ufeff'))) for item in data]
     all_diameter.sort()
-    await message.message.edit_reply_markup(keyboards.diameter_calc(data=all_diameter, SDR=SDR))
+    await message.message.edit_reply_markup(keyboards.diameter_calc(data=all_diameter, SDR=SDR, price=price))
 
 
 async def sql_mass_pipe_calc(SDR, diameter):
     """ Вывод данных из БД по список диаметров труб """
     cur.execute(f'SELECT SDR{SDR} FROM calc where Diameter = ?', (diameter,))
     data = cur.fetchall()
-    return data[0][0]
+    try:
+        result = data[0][0]
+    except:
+        result = 0
+    return result
