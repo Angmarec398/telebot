@@ -14,7 +14,7 @@ def start_callback_message(message: types.CallbackQuery):
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
     start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
     markup.add(start_1, start_2)
-    start_3 = types.InlineKeyboardButton(text="Чек-листы", callback_data="Чек-листы")
+    start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="calc")
     if message.from_user.id in admin_list:
         start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
         markup.add(start_3, start_4)
@@ -61,11 +61,12 @@ def keyboard_search(data, new_row=0, table='info', collum_text=0, collum_callbac
     markup.row_width = row_width
     row = count_button + new_row
     markup.add(*[InlineKeyboardButton(text=button[collum_text],
-                                      callback_data=f'button:{button[collum_callback]}:{name_collum}:{table}') for button in data[new_row:row]])
+                                      callback_data=f'button:{button[collum_callback]}:{name_collum}:{table}') for
+                 button in data[new_row:row]])
     button_go = InlineKeyboardButton(text="Вперед ➡",
                                      callback_data=f'lets_go_search:{row}:{table}:{collum_text}:{collum_callback}:{row_width}:{count_button}:{name_collum}')
     button_back = InlineKeyboardButton(text="Назад ↩️",
-                                       callback_data=f'lets_back_search:{row - (count_button*2)}:{table}:{collum_text}:{collum_callback}:{row_width}:{count_button}:{name_collum}')
+                                       callback_data=f'lets_back_search:{row - (count_button * 2)}:{table}:{collum_text}:{collum_callback}:{row_width}:{count_button}:{name_collum}')
     if count_button < row > len(data):
         markup.add(button_back)
     elif new_row == 0 and count_button < len(data):
@@ -125,7 +126,7 @@ async def callback_key(callback: types.CallbackQuery):
                                                          count_button=count_button, name_collum=name_collum))
 
 
-@bot.callback_query_handler(text_contains='button')
+@bot.callback_query_handler(lambda call: call.data.startswith('button'))
 async def brain(callback: types.CallbackQuery):
     """ Запрос подробной информации при нажатии на Inline-кнопку """
     row = await sqlite_db.sql_reach_info(callback_query=callback)
@@ -136,10 +137,6 @@ async def brain(callback: types.CallbackQuery):
         await auth_token.send_message(callback.from_user.id,
                                       f'{row[0][3]}\n{row[0][1]}\n{row[0][2]}')
 
-
-# @bot.callback_query_handler(lambda call: True)
-# async def brain(callback: types.CallbackQuery):
-#     await sqlite_db.stoptopupcall(callback_query=callback)
 
 def plastic_price_info(actual_price, row_width=2, plastic_sort=None):
     markup = InlineKeyboardMarkup()
@@ -181,3 +178,43 @@ async def plastic_brain(callback: types.CallbackQuery):
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
                                               f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+
+
+def start_calc():
+    """ Стартовая клавиатура в разделе Калькулятор"""
+    markup = types.InlineKeyboardMarkup()
+    start_1 = types.InlineKeyboardButton(text='SDR 6', callback_data='SDR6')
+    start_2 = types.InlineKeyboardButton(text='SDR 7,4', callback_data='SDR74')
+    markup.add(start_1, start_2)
+    start_3 = types.InlineKeyboardButton(text='SDR 9', callback_data='SDR9')
+    start_4 = types.InlineKeyboardButton(text='SDR 11', callback_data='SDR11')
+    markup.add(start_3, start_4)
+    start_5 = types.InlineKeyboardButton(text='SDR 13,6', callback_data='SDR136')
+    start_6 = types.InlineKeyboardButton(text='SDR 17', callback_data='SDR17')
+    markup.add(start_5, start_6)
+    start_7 = types.InlineKeyboardButton(text='SDR 17,6', callback_data='SDR176')
+    start_8 = types.InlineKeyboardButton(text='SDR 21', callback_data='SDR21')
+    markup.add(start_7, start_8)
+    start_9 = types.InlineKeyboardButton(text='SDR 26', callback_data='SDR26')
+    start_10 = types.InlineKeyboardButton(text='SDR 33', callback_data='SDR33')
+    markup.add(start_9, start_10)
+    start_11 = types.InlineKeyboardButton(text="Назад в меню ↩", callback_data="start_menu")
+    markup.add(start_11)
+    return markup
+
+
+def diameter_calc(data, SDR=None, back_to_menu=True):
+    """ Inline-кнопоки для определения диаметров """
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 5
+    markup.add(*[InlineKeyboardButton(text=button,
+                                      callback_data=f'dia_button:{button}:{SDR}') for
+                 button in data])
+    if back_to_menu:
+        button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+        markup.add(button_menu)
+    return markup
+
+# @bot.callback_query_handler(lambda call: True)
+# async def brain(callback: types.CallbackQuery):
+#     await sqlite_db.stoptopupcall(callback_query=callback)

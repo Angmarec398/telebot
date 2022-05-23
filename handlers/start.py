@@ -9,7 +9,7 @@ async def start_message(message: types.Message):
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
     start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
     markup.add(start_1, start_2)
-    start_3 = types.InlineKeyboardButton(text="Чек-листы", callback_data="Чек-листы")
+    start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="calc")
     if message.from_user.id in admin_list:
         start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
         markup.add(start_3, start_4)

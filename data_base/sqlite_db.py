@@ -86,11 +86,28 @@ async def sql_sert_search(call_message: types.CallbackQuery):
                                       reply_markup=keyboards.keyboard_search(data=data, table=table, collum_text=3,
                                                                              row_width=1, count_button=10,
                                                                              collum_callback=3,
-                                                                             name_collum=name_collum)
-                                      )
+                                                                             name_collum=name_collum))
     else:
         await auth_token.send_message(call_message.from_user.id, text='Результат:',
                                       reply_markup=keyboards.keyboard_search(data=data, table=table, collum_text=3,
                                                                              row_width=1,count_button=10,
                                                                              collum_callback=3,
                                                                              name_collum=name_collum))
+
+
+async def sql_diameter_calc(message: types.CallbackQuery):
+    """ Вывод данных из БД по список диаметров труб """
+    cur.execute(f'SELECT Diameter FROM calc')
+    SDR = message.data.lstrip('SDR')
+    all_diameter = []
+    data = cur.fetchall()
+    [all_diameter.append(int(str(item[0]).lstrip('\ufeff'))) for item in data]
+    all_diameter.sort()
+    await message.message.edit_reply_markup(keyboards.diameter_calc(data=all_diameter, SDR=SDR))
+
+
+async def sql_mass_pipe_calc(SDR, diameter):
+    """ Вывод данных из БД по список диаметров труб """
+    cur.execute(f'SELECT SDR{SDR} FROM calc where Diameter = ?', (diameter,))
+    data = cur.fetchall()
+    return data[0][0]
