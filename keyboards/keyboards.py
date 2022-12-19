@@ -8,6 +8,8 @@ from handlers import plastic_price
 
 
 # Раздел работы с клавиатурой и кнопками
+# Стартовые клавиатуры
+
 def start_callback_message(message: types.CallbackQuery):
     """ Стартовая клавиатура бота """
     markup = types.InlineKeyboardMarkup()
@@ -20,8 +22,10 @@ def start_callback_message(message: types.CallbackQuery):
         markup.add(start_3, start_4)
     else:
         markup.add(start_3)
-    start_5 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
+    start_5 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
     markup.add(start_5)
+    start_6 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
+    markup.add(start_6)
     return markup
 
 
@@ -37,8 +41,24 @@ def start_sert_exam():
     return markup
 
 
+def start_talk():
+    """ Стартовая клавиатура в разделе Разъяснения """
+    markup = types.InlineKeyboardMarkup()
+    tittle_button = types.InlineKeyboardButton(text='Выберите источник:', callback_data='start_menu')
+    markup.add(tittle_button)
+    start_1 = types.InlineKeyboardButton(text="Разъяснения Ассоциации", callback_data='talk_apts')
+    markup.add(start_1)
+    start_2 = types.InlineKeyboardButton(text="Разъяснения сторонних организаций", callback_data="talk_inter")
+    markup.add(start_2)
+    start_3 = types.InlineKeyboardButton(text="Назад в меню ↩", callback_data="start_menu")
+    markup.add(start_3)
+    return markup
+
+
 def start_plastic_price(calc=None):
-    """ Стартовая клавиатура в разделе Стоимость полиэтилена """
+    """Стартовая клавиатура в разделе Стоимость полиэтилена(calk=None).
+    Стартовая клавиатура в разделе Калькулятор трубы(calk=True).
+    Следующие функции plastic_pe или plastic_pp или plastic_pvh в модуле plastic_price"""
     markup = types.InlineKeyboardMarkup()
     tittle_button = types.InlineKeyboardButton(text="Выберите полимер", callback_data=f'start_menu')
     markup.add(tittle_button)
@@ -141,7 +161,9 @@ async def brain(callback: types.CallbackQuery):
 
 
 def plastic_price_info(actual_price, row_width=2, plastic_sort=None, calc=None):
-    """ Вывод списка быбранных полимеров """
+    """Вывод клавиатуры выбора марки полимеров. Работает как с разделом калькулятор труб, так и стоимость полимеров.
+    Следующие шаги: вывод информации через функцию plastic_brain в модуле keyboards или дальнейшее использование через
+    функцию start_calc в модуле calculation"""
     if calc != 'True':
         markup = InlineKeyboardMarkup()
         markup.row_width = row_width
@@ -198,7 +220,8 @@ async def plastic_brain(callback: types.CallbackQuery):
 
 
 def start_calc(price=0):
-    """ Стартовая клавиатура в разделе Калькулятор"""
+    """ Стартовая клавиатура в разделе Калькулятор. На вход получает информацию о цене. Передача информации в
+    функцию calc_diameter в модуле calculation"""
     markup = types.InlineKeyboardMarkup()
     tittle_button = types.InlineKeyboardButton(text='Выберите SDR', callback_data='start_menu')
     markup.add(tittle_button)
@@ -223,7 +246,7 @@ def start_calc(price=0):
 
 
 def diameter_calc(data, SDR=None, back_to_menu=True, price=None):
-    """ Inline-кнопоки для определения диаметров """
+    """ Inline-кнопки для выбора диаметра трубы """
     markup = InlineKeyboardMarkup()
     markup.row_width = 5
     tittle_button = types.InlineKeyboardButton(text='Выберите диаметр', callback_data='start_menu')
@@ -234,6 +257,17 @@ def diameter_calc(data, SDR=None, back_to_menu=True, price=None):
     if back_to_menu:
         button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
         markup.add(button_menu)
+    return markup
+
+
+def talk(data):
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 1
+    markup.add(*[InlineKeyboardButton(text=text,
+                                      url=link) for
+                 text, link in data.items()])
+    button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+    markup.add(button_menu)
     return markup
 
 # @bot.callback_query_handler(lambda call: True)

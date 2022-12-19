@@ -96,7 +96,7 @@ async def sql_sert_search(call_message: types.CallbackQuery):
 
 
 async def sql_diameter_calc(message: types.CallbackQuery, price=None):
-    """ Вывод данных из БД по список диаметров труб """
+    """ Вывод данных из БД по список диаметров труб. Передает информацию о диаметрах труб, SDR и стоимости"""
     cur.execute(f'SELECT Diameter FROM calc')
     SDR = message.data.lstrip('SDR')
     all_diameter = []

@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 
 print("Скрипт запущен")
 
+
 def refresh():
     try:
         ### Добавляем входные данные ###

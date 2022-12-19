@@ -34,6 +34,8 @@ async def sert_exam(message: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda call: call.data.startswith('plastic-pe'))
 async def plastic_pe(callback_message: types.CallbackQuery):
+    """ Уточнение актуальной стоимости полиэтилена.
+    Если calc True, значит данные для Калькулятора труб, если False, то для раздела Стоимость полимеров"""
     actual_pe_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
     try:
         calc = str(callback_message['data']).split(':')[1]
@@ -46,6 +48,8 @@ async def plastic_pe(callback_message: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda call: call.data.startswith('plastic-pp'))
 async def plastic_pe(callback_message: types.CallbackQuery):
+    """ Уточнение актуальной стоимости полипропилена.
+    Если calc True, значит данные для Калькулятора труб, если False, то для раздела Стоимость полимеров"""
     try:
         calc = str(callback_message['data']).split(':')[1]
     except:
@@ -58,6 +62,8 @@ async def plastic_pe(callback_message: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda call: call.data.startswith('plastic-pvh'))
 async def plastic_pe(callback_message: types.CallbackQuery):
+    """ Уточнение актуальной стоимости поливинилхлорида.
+    Если calc True, значит данные для Калькулятора труб, если False, то для раздела Стоимость полимеров"""
     actual_pvh_price = sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
     try:
         calc = str(callback_message['data']).split(':')[1]
