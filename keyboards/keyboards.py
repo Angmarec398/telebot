@@ -158,14 +158,18 @@ async def callback_key(callback: types.CallbackQuery):
 
 @bot.callback_query_handler(lambda call: call.data.startswith('button'))
 async def brain(callback: types.CallbackQuery):
-    """ Запрос подробной информации при нажатии на Inline-кнопку """
+    """ Вывод подробной информации со сертификату при нажатии на Inline-кнопку """
     row = await sqlite_db.sql_reach_info(callback_query=callback)
     if (str(callback['data'])).split(':')[3] == 'info':
+        await callback.message.edit_reply_markup()
         await auth_token.send_message(callback.from_user.id,
-                                      f'{row[0][0]},\n{row[0][1]},\n{row[0][2]}')
+                                      f'{row[0][0]},\n{row[0][1]},\n{row[0][2]}',
+                                      reply_markup=back_to_menu_from_sert_exam())
     elif (str(callback['data'])).split(':')[3] == 'sert_list':
+        await callback.message.edit_reply_markup()
         await auth_token.send_message(callback.from_user.id,
-                                      f'{row[0][3]}\n{row[0][1]}\n{row[0][2]}')
+                                      f'{row[0][3]}\n{row[0][1]}\n{row[0][2]}',
+                                      reply_markup=back_to_menu_from_sert_exam())
 
 
 def plastic_price_info(actual_price, row_width=2, plastic_sort=None, calc=None):
@@ -310,7 +314,7 @@ def back_to_menu_from_plastic_price():
 
 
 def back_to_menu_from_sert_exam():
-    """Кнопки "Назад в меню" или "Проверить еще" в разделе Калькулятор трубы """
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Проверка сертификатов """
     markup = InlineKeyboardMarkup()
     button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
     button_sert = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='search_setr')
