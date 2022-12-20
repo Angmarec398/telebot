@@ -90,7 +90,7 @@ async def sql_sert_search(call_message: types.CallbackQuery):
     else:
         await auth_token.send_message(call_message.from_user.id, text='Результат:',
                                       reply_markup=keyboards.keyboard_search(data=data, table=table, collum_text=3,
-                                                                             row_width=1,count_button=10,
+                                                                             row_width=1, count_button=10,
                                                                              collum_callback=3,
                                                                              name_collum=name_collum))
 

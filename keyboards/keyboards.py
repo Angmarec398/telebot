@@ -15,13 +15,12 @@ def start_callback_message(message: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
     start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
-    markup.add(start_1, start_2)
-    start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="calc")
+    start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="plast_calc")
     if message.from_user.id in admin_list:
         start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
-        markup.add(start_3, start_4)
+        markup.add(start_1, start_2, start_3, start_4)
     else:
-        markup.add(start_3)
+        markup.add(start_2, start_3)
     start_5 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
     markup.add(start_5)
     start_6 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
@@ -200,7 +199,8 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
+                                              reply_markup=back_to_menu_from_plastic_price())
     elif sheet_name == 'pp':
         pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
         price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
@@ -208,7 +208,8 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
+                                              reply_markup=back_to_menu_from_plastic_price())
     elif sheet_name == 'pvh':
         pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
         price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
@@ -216,7 +217,8 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}')
+                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
+                                              reply_markup=back_to_menu_from_plastic_price())
 
 
 def start_calc(price=0):
@@ -268,6 +270,24 @@ def talk(data):
                  text, link in data.items()])
     button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
     markup.add(button_menu)
+    return markup
+
+
+def back_to_menu_from_calc():
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Калькулятор трубы """
+    markup = InlineKeyboardMarkup()
+    button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+    button_calc = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='plast_calc')
+    markup.add(button_calc, button_menu)
+    return markup
+
+
+def back_to_menu_from_plastic_price():
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Калькулятор трубы """
+    markup = InlineKeyboardMarkup()
+    button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+    button_calc = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='plastic_price')
+    markup.add(button_calc, button_menu)
     return markup
 
 # @bot.callback_query_handler(lambda call: True)

@@ -26,7 +26,7 @@ class FSMSert(StatesGroup):
 
 @bot.callback_query_handler(text='search_setr')
 async def start_search_sert(callback_sert: types.CallbackQuery):
-    await auth_token.send_message(callback_sert.from_user.id, text="Введите последние 5 символов в сертификате")
+    await auth_token.send_message(callback_sert.from_user.id, text="Введите последние 5 символов в сертификате. Пример 31/21 или 02575")
     await FSMSert.sert.set()
 
 

@@ -1,3 +1,5 @@
+import locale
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Text
 
@@ -36,6 +38,7 @@ async def calc_diameter(callback: types.CallbackQuery):
 
 class FSMCalc(StatesGroup):
     metr = State()
+    plastic_price = State()
     # SDR = State()
     # diametr = State()
 
@@ -59,12 +62,20 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await message.reply("Расчет отменен")
 
 
+async def give_pipe_price(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['plastic_price'] = message
+    await FSMCalc.next()
+    await message.reply('Введите стоимость полиэтилена за 1 кг.')
+
+
 async def calc_diameter_result(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         """ Вывод информации по расчету стоимости"""
         SDR = data.as_dict()['SDR']
         diameter = data.as_dict()['diameter']
         price = int(data.as_dict()['price'])
+        plastic_price = int(data.as_dict()['plastic_price']['text'])
         mass = await sqlite_db.sql_mass_pipe_calc(SDR=SDR, diameter=diameter)
         data['metr'] = message.text
         try:
@@ -77,13 +88,16 @@ async def calc_diameter_result(message: types.Message, state: FSMContext):
             result_metr = int(str(data['metr']))
     if mass == 0:
         await auth_token.send_message(message.from_user.id,
-                                      text='Отсутствует информация. Вероятно сооотношении SDR и диаметра некорректно')
-    elif price > 0:
+                                      text='Отсутствует информация. Вероятно соотношение SDR и диаметра некорректно')
+    elif plastic_price > 0:
         mass_result = int(result_mass * result_metr)
-        calc_result = int(((result_mass * result_metr * price) / 1000) * 1.27)
-        await auth_token.send_message(message.from_user.id, text=f'Цена за кг {price / 1000} руб.\n'
-                                                                 f'Общий вес труб {mass_result} кг.\n'
-                                                                 f'Минимальная стоимость труб (трубопровода) {calc_result} руб.')
+        calc_result = int((result_mass * result_metr * plastic_price) * 1.27)
+        calc_result_after_format = '{0:,}'.format(calc_result).replace(',', ' ')
+
+        await auth_token.send_message(message.from_user.id, text=f'Общий вес труб {mass_result} кг.\n'
+                                                                 f'Минимальная стоимость труб (трубопровода), '
+                                                                 f'без учета доставки {calc_result_after_format} руб.',
+                                      reply_markup=keyboards.back_to_menu_from_calc())
     else:
         calc_result = int(result_mass * result_metr)
         await auth_token.send_message(message.from_user.id,
@@ -92,6 +106,7 @@ async def calc_diameter_result(message: types.Message, state: FSMContext):
 
 
 def reg_handlers_calc(bot: Dispatcher):
-    bot.register_message_handler(calc_diameter_result, state=FSMCalc.metr)
+    bot.register_message_handler(give_pipe_price, state=FSMCalc.metr)
+    bot.register_message_handler(calc_diameter_result, state=FSMCalc.plastic_price)
     bot.register_message_handler(cancel_handler, state='*', content_types=['text'], text='Отмена')
     bot.register_message_handler(cancel_handler, Text(equals='отмена', ignore_case=True), state='*')
