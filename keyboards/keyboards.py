@@ -9,23 +9,32 @@ from handlers import plastic_price
 
 # Раздел работы с клавиатурой и кнопками
 # Стартовые клавиатуры
-
-def start_callback_message(message: types.CallbackQuery):
-    """ Стартовая клавиатура бота """
+def start_keyboard(message):
+    """Клавиатура основного меню"""
     markup = types.InlineKeyboardMarkup()
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
     start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
     start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="plast_calc")
     if message.from_user.id in admin_list:
         start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
-        markup.add(start_1, start_2, start_3, start_4)
+        markup.add(start_1, start_4)
+        markup.add(start_2, start_3)
     else:
         markup.add(start_2, start_3)
-    start_5 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
+    start_5 = types.InlineKeyboardButton(text="Проверка организации по ИНН", callback_data="exam_inn")
     markup.add(start_5)
-    start_6 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
+    start_6 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
     markup.add(start_6)
+    start_7 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
+    markup.add(start_7)
+    start_8 = types.InlineKeyboardButton(text='Просмотр аналитики', callback_data="analytics")
+    markup.add(start_8)
     return markup
+
+
+def start_callback_message(message: types.CallbackQuery):
+    """Вывод стартового меню через callback запрос"""
+    return start_keyboard(message=message)
 
 
 def start_sert_exam():
@@ -193,28 +202,37 @@ async def plastic_brain(callback: types.CallbackQuery):
     plastic_name = callback.data.split(':')[1]
     sheet_name = callback.data.split(':')[2]
     if sheet_name == 'pe':
-        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15")
-        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2")
+        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!A2:C15",
+                                           path="lab-reestr-6aa81a2d3150.json")
+        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПЭ)'!D2",
+                                              path="lab-reestr-6aa81a2d3150.json")
         for plastic_item in pp_list:
             if plastic_item[1] == plastic_name:
+                await callback.message.edit_reply_markup()
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
                                               f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
                                               reply_markup=back_to_menu_from_plastic_price())
     elif sheet_name == 'pp':
-        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15")
-        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2")
+        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15",
+                                           path="lab-reestr-6aa81a2d3150.json")
+        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!D2",
+                                              path="lab-reestr-6aa81a2d3150.json")
         for plastic_item in pp_list:
             if plastic_item[1] == plastic_name:
+                await callback.message.edit_reply_markup()
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
                                               f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
                                               reply_markup=back_to_menu_from_plastic_price())
     elif sheet_name == 'pvh':
-        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15")
-        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2")
+        pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15",
+                                           path="lab-reestr-6aa81a2d3150.json")
+        price_data = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!D2",
+                                              path="lab-reestr-6aa81a2d3150.json")
         for plastic_item in pp_list:
             if plastic_item[1] == plastic_name:
+                await callback.message.edit_reply_markup()
                 await auth_token.send_message(callback.from_user.id,
                                               f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
                                               f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
@@ -290,6 +308,30 @@ def back_to_menu_from_plastic_price():
     markup.add(button_calc, button_menu)
     return markup
 
+
+def back_to_menu_from_sert_exam():
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Калькулятор трубы """
+    markup = InlineKeyboardMarkup()
+    button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+    button_sert = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='search_setr')
+    markup.add(button_sert, button_menu)
+    return markup
+
+
+def back_to_menu_from_exam_inn():
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Проверка по ИНН """
+    markup = InlineKeyboardMarkup()
+    button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+    button_inn = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='exam_inn')
+    markup.add(button_inn, button_menu)
+    return markup
+
+# def cancel_sert_exam():
+#     """Кнопки "Назад в меню" или "Проверить еще" в разделе Калькулятор трубы """
+#     markup = InlineKeyboardMarkup()
+#     button_cancel = InlineKeyboardButton(text="Отмена", callback_data='sert_cancel')
+#     markup.add(button_cancel)
+#     return markup
 # @bot.callback_query_handler(lambda call: True)
 # async def brain(callback: types.CallbackQuery):
 #     await sqlite_db.stoptopupcall(callback_query=callback)

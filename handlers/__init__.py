@@ -5,5 +5,6 @@ from handlers import new_order
 from handlers import sert_exam
 from handlers import talk
 from handlers import calculation
+from handlers import reputaion
 from handlers import other
 

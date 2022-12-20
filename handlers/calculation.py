@@ -1,8 +1,5 @@
-import locale
-
 from aiogram import types, Dispatcher
 from aiogram.dispatcher.filters import Text
-
 from analytics import history
 from create_bot import bot, auth_token
 from data_base import sqlite_db
@@ -87,21 +84,25 @@ async def calc_diameter_result(message: types.Message, state: FSMContext):
         except:
             result_metr = int(str(data['metr']))
     if mass == 0:
+        await message.edit_reply_markup()
         await auth_token.send_message(message.from_user.id,
-                                      text='Отсутствует информация. Вероятно соотношение SDR и диаметра некорректно')
+                                      text='Отсутствует информация. Вероятно соотношение SDR и диаметра некорректно',
+                                      reply_markup=keyboards.back_to_menu_from_calc())
     elif plastic_price > 0:
         mass_result = int(result_mass * result_metr)
         calc_result = int((result_mass * result_metr * plastic_price) * 1.27)
         calc_result_after_format = '{0:,}'.format(calc_result).replace(',', ' ')
-
+        await message.edit_reply_markup()
         await auth_token.send_message(message.from_user.id, text=f'Общий вес труб {mass_result} кг.\n'
                                                                  f'Минимальная стоимость труб (трубопровода), '
                                                                  f'без учета доставки {calc_result_after_format} руб.',
                                       reply_markup=keyboards.back_to_menu_from_calc())
     else:
         calc_result = int(result_mass * result_metr)
+        await message.edit_reply_markup()
         await auth_token.send_message(message.from_user.id,
-                                      text=f'Отсутствует информация о текущей стоимости полимера,общий вес труб {calc_result} кг.')
+                                      text=f'Отсутствует информация о текущей стоимости полимера,общий вес труб {calc_result} кг.',
+                                      reply_markup=keyboards.back_to_menu_from_calc())
     await state.finish()
 
 

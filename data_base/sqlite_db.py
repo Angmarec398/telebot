@@ -59,6 +59,23 @@ async def sql_save_analytics(data):
         pass
 
 
+async def sql_get_analytics(message: types.CallbackQuery):
+    """Получение данных о количестве пользователей и количестве запросов. Вывод ответа в виде сообщения"""
+    cur.execute(f'SELECT * FROM analytics')
+    data = cur.fetchall()
+    all_user_count = []
+    for item_request in data[0]:
+        user_id_from_requsest = item_request[1]
+        if user_id_from_requsest in all_user_count:
+            pass
+        else:
+            all_user_count.append(user_id_from_requsest)
+    await message.message.edit_reply_markup()
+    await auth_token.send_message(message.from_user.id, text=f'Общее количество запросов: {len(data)}\n'
+                                                             f'Количество пользователей: {len(all_user_count)}',
+                                  reply_markup=keyboards.start_callback_message(message=message))
+
+
 async def sql_sert_read(message: types.CallbackQuery):
     """ Вывод данных из БД по списки сертификатов """
     table = 'sert_list'

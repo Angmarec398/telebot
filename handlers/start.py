@@ -1,25 +1,12 @@
 from aiogram import types, Dispatcher
 from auth import admin_list
 from create_bot import bot
-from keyboards.keyboards import start_callback_message
+from keyboards.keyboards import start_callback_message, start_keyboard
 
 
 async def start_message(message: types.Message):
-    markup = types.InlineKeyboardMarkup()
-    start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
-    start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
-    # start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="calc")
-    start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="plast_calc")
-    if message.from_user.id in admin_list:
-        start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
-        markup.add(start_1, start_2, start_3, start_4)
-    else:
-        markup.add(start_2, start_3)
-    start_5 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
-    markup.add(start_5)
-    start_6 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
-    markup.add(start_6)
-    await message.answer('Чем могу помочь?', reply_markup=markup)
+    """Вывод стартового меню через сообщения или команды"""
+    await message.answer('Чем могу помочь?', reply_markup=start_keyboard(message=message))
     await message.delete()
 
 

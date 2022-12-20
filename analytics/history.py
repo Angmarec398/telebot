@@ -1,5 +1,7 @@
 import datetime
 from data_base import sqlite_db
+from aiogram import types, Dispatcher
+from create_bot import bot, auth_token
 
 
 async def analytics(message):
@@ -28,3 +30,8 @@ async def analytics_callback(message):
         time
     )
     await sqlite_db.sql_save_analytics(data=data)
+
+
+@bot.callback_query_handler(text='analytics')
+async def exam_analitics(message: types.CallbackQuery):
+    await sqlite_db.sql_get_analytics(message=message)

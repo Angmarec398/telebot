@@ -1,6 +1,6 @@
 from aiogram import executor
 from create_bot import bot
-from handlers import start, calculation, admin, sert_exam, other
+from handlers import start, calculation, admin, sert_exam, reputaion, other
 from data_base import sqlite_db
 
 
@@ -15,7 +15,9 @@ if __name__ == '__main__':
     calculation.reg_handlers_calc(bot=bot)
     admin.reg_handlers_admin(bot=bot)
     sert_exam.reg_handlers_sert(bot=bot)
+    reputaion.reg_handlers_manufacture(bot=bot)
 
     other.reg_handlers_other_message(bot=bot)
+
     # Запускаем бота
     executor.start_polling(bot, skip_updates=True, on_startup=online)
