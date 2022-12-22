@@ -1,5 +1,5 @@
 token = "5316327770:AAGom2XryZ2y8RXNg0H2DDdoSp6J-L686tU"
-admin_list = [4425462891]
+admin_list = [442546289]
 
 address_1 = {'ip': '87.247.146.202:8000', 'for connect': {'login': 'hRzx3d', 'password': 'Yr658d'}}
 address_2 = {'ip': '87.247.147.24:8000', 'for connect': {'login': 'hRzx3d', 'password': 'Yr658d'}}

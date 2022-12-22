@@ -1,6 +1,6 @@
 from aiogram import types, Dispatcher
 from create_bot import bot, auth_token
-from data_base.google import sheet_data
+from data_base.google import as_sheet_data
 from analytics import history
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -24,10 +24,9 @@ headers_rusprofile = {
 }
 
 
-def rusprofile(inn):
+async def rusprofile(inn):
     """ Функция по ИНН проверяет является ли данная организация действующей. Для поиска необходимо указать переменную
     inn с ИНН компании. В ответе возвращает значения 'Наименование организации' и 'Статус организации' в виде списка"""
-    print(inn)
     if inn is None:
         title = 'Отсутсвует'
         status = 'Отсутсвует'
@@ -47,6 +46,7 @@ class FSMinn(StatesGroup):
 # Раздел "Проверка сертификатов"
 @bot.callback_query_handler(text='exam_inn')
 async def manufacture_exam(message: types.CallbackQuery):
+    """Функция запускает машину состояний для ввода ИНН пользователем"""
     await history.analytics_callback(message=message)
     await message.message.edit_reply_markup()
     await auth_token.send_message(message.from_user.id,
@@ -55,17 +55,46 @@ async def manufacture_exam(message: types.CallbackQuery):
 
 
 async def save_manufacture_exam(message: types.CallbackQuery, state: FSMContext):
+    """Функция проверяет ИНН на сайте Руспрофиля и через гугл-таблицы реестра лабораторных испытаний
+    и реестр обязательных сертификатов"""
     if len(message.text) == 10 or len(message.text) == 13:
         async with state.proxy() as data:
             data['inn'] = message.text
-            result = rusprofile(inn=data['inn'])
-            print(result)
-            title_manufacture = result[0]
-            status_manufacture = result[1]
+            exam_status_manufacture = await rusprofile(inn=data['inn'])
+            title_manufacture = exam_status_manufacture[0]
+            status_manufacture = exam_status_manufacture[1]
+            count_all_lab_exam = 0
+            count_bad_lab_exam = 0
+            count_all_sert_exam = 0
+            count_bad_sert_exam = 0
+            exam_labtest_manufacture = await as_sheet_data(link="1zxWTxu6TsMf--fqIAWe-JIQVOgb0z4Yt8OJZhRFV52w",
+                                                           list="'Обновлен 18.11.2022'!A2:M1100",
+                                                           path="lab-reestr-6aa81a2d3150.json")
+            for poin_lab_exam in exam_labtest_manufacture:
+                if str(poin_lab_exam[4]) == str(data['inn']):
+                    count_all_lab_exam += 1
+                    if str(poin_lab_exam[-1]) == 'Не соответствует НД':
+                        count_bad_lab_exam += 1
+            exam_sert_manufacture = await as_sheet_data(link='1NG2gg8YmPmW3g5qWNz_c08e4q0SJGxV3let9BVIxfh8',
+                                                        list="'Обязательные СС'!A2:Q550",
+                                                        path="lab-reestr-6aa81a2d3150.json")
+            for point_sert_exam in exam_sert_manufacture:
+                if len(point_sert_exam[-2]) == 9:
+                    edit_point_sert_exam = "0" + str(point_sert_exam[-2])
+                else:
+                    edit_point_sert_exam = str(point_sert_exam[-2])
+                if edit_point_sert_exam == str(data['inn']):
+                    count_all_sert_exam += 1
+                    if point_sert_exam[0] == "есть нарушения":
+                        count_bad_sert_exam += 1
         await auth_token.send_message(message.from_user.id,
-                                      text=f'Компания: {title_manufacture}\n'
-                                           f'Статус: {status_manufacture}',
-                                      reply_markup=keyboards.back_to_menu_from_exam_inn())
+                                      text=f'<b>Компания</b>: {title_manufacture}\n'
+                                           f'<b>Статус</b>: {status_manufacture}\n\n'
+                                           f'<b>Количество проведенный испытаний</b>: {count_all_lab_exam}\n'
+                                           f'<b>Количество испытаний с нарушениями</b>: {count_bad_lab_exam}\n\n'
+                                           f'<b>Количество обязательных сертификатов</b>: {count_all_sert_exam}\n'
+                                           f'<b>Количество обязательных сертификатов с нарушениями</b>: {count_bad_sert_exam}',
+                                      reply_markup=keyboards.back_to_menu_from_exam_inn(), parse_mode="HTML")
         await state.finish()
     else:
         await state.finish()

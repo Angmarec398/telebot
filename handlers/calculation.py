@@ -43,10 +43,25 @@ class FSMCalc(StatesGroup):
 @bot.callback_query_handler(lambda call: call.data.startswith('dia_button'))
 async def calc_diameter(callback: types.CallbackQuery):
     """Функция получает данные о цене, диаметре и о SDR трубы. Запуск машины состояний для ввода метража трубы"""
-    await auth_token.send_message(callback.from_user.id, text="Введите длину трубопровода(трубы) в метрах")
+    await callback.message.edit_reply_markup()
+    SDR = callback.data.split(':')[2]
+    diameter = callback.data.split(':')[1]
+    if str(SDR) == "136":
+        change_SDR = "13,6"
+    elif str(SDR) == "74":
+        change_SDR = "7,4"
+    elif str(SDR) == "176":
+        change_SDR = "17,6"
+    else:
+        change_SDR = SDR
+    await auth_token.send_message(callback.from_user.id, text=f"Вводные:\n"
+                                                              f"SDR: {change_SDR}\n"
+                                                              f"Диаметр: {diameter}\n"
+                                                              f"<b>Введите длину трубопровода(трубы) в метрах</b>",
+                                  parse_mode="HTML")
     await FSMCalc.metr.set()
     state = Dispatcher.get_current().current_state()
-    await state.update_data(SDR=callback.data.split(':')[2], diameter=callback.data.split(':')[1],
+    await state.update_data(SDR=SDR, diameter=diameter,
                             price=callback.data.split(':')[3])
 
 
@@ -84,7 +99,6 @@ async def calc_diameter_result(message: types.Message, state: FSMContext):
         except:
             result_metr = int(str(data['metr']))
     if mass == 0:
-        await message.edit_reply_markup()
         await auth_token.send_message(message.from_user.id,
                                       text='Отсутствует информация. Вероятно соотношение SDR и диаметра некорректно',
                                       reply_markup=keyboards.back_to_menu_from_calc())
@@ -92,14 +106,12 @@ async def calc_diameter_result(message: types.Message, state: FSMContext):
         mass_result = int(result_mass * result_metr)
         calc_result = int((result_mass * result_metr * plastic_price) * 1.27)
         calc_result_after_format = '{0:,}'.format(calc_result).replace(',', ' ')
-        await message.edit_reply_markup()
         await auth_token.send_message(message.from_user.id, text=f'Общий вес труб {mass_result} кг.\n'
-                                                                 f'Минимальная стоимость труб (трубопровода), '
+                                                                 f'Минимальная стоимость труб, '
                                                                  f'без учета доставки {calc_result_after_format} руб.',
                                       reply_markup=keyboards.back_to_menu_from_calc())
     else:
         calc_result = int(result_mass * result_metr)
-        await message.edit_reply_markup()
         await auth_token.send_message(message.from_user.id,
                                       text=f'Отсутствует информация о текущей стоимости полимера,общий вес труб {calc_result} кг.',
                                       reply_markup=keyboards.back_to_menu_from_calc())

@@ -15,20 +15,22 @@ def start_keyboard(message):
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
     start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
     start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="plast_calc")
-    if message.from_user.id in admin_list:
-        start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
-        markup.add(start_1, start_4)
-        markup.add(start_2, start_3)
-    else:
-        markup.add(start_2, start_3)
+    markup.add(start_2, start_3)
+    # if message.from_user.id in admin_list:
+    #     start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
+    #     markup.add(start_1, start_4)
+    #     markup.add(start_2, start_3)
+    # else:
+    #     markup.add(start_2, start_3)
     start_5 = types.InlineKeyboardButton(text="Проверка организации по ИНН", callback_data="exam_inn")
     markup.add(start_5)
     start_6 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
     markup.add(start_6)
     start_7 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
     markup.add(start_7)
-    start_8 = types.InlineKeyboardButton(text='Просмотр аналитики', callback_data="analytics")
-    markup.add(start_8)
+    if message.from_user.id in admin_list:
+        start_8 = types.InlineKeyboardButton(text='Просмотр аналитики', callback_data="analytics")
+        markup.add(start_8)
     return markup
 
 
