@@ -1,8 +1,6 @@
 from aiogram import types, Dispatcher
 from create_bot import bot, auth_token
-from data_base import sqlite_db
 from analytics import history
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from keyboards import keyboards
 from bs4 import BeautifulSoup
 import aiohttp
@@ -10,12 +8,17 @@ import aiohttp
 
 @bot.callback_query_handler(text='Разъяснения')
 async def sert_exam(message: types.CallbackQuery):
-    await history.analytics_callback(message=message)
+    """Вызов стартовой клавиатуры по разъяснениям"""
+    try:
+        await history.analytics_callback(message=message)
+    except:
+        pass
     await message.message.edit_reply_markup(keyboards.start_talk())
 
 
 @bot.callback_query_handler(text='talk_apts')
-async def sert_exam(message: types.CallbackQuery):
+async def talk_apts(message: types.CallbackQuery):
+    """Сбор наименований разъяснений АПТС и ссылок на них с сайта rapts.ru"""
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'
@@ -34,3 +37,25 @@ async def sert_exam(message: types.CallbackQuery):
             link = f"{url}{iter_step.split('link=')[1]}"
             data.update({name: link})
         await message.message.edit_reply_markup(keyboards.talk(data=data))
+
+
+@bot.callback_query_handler(text='talk_inter')
+async def talk_inter(message: types.CallbackQuery):
+    """Сбор наименований разъяснений сторонних организаций и ссылок на них с сайта rapts.ru"""
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'
+    }
+    url = 'https://rapts.ru/talk_inter'
+    async with aiohttp.ClientSession() as inter_session:
+        req_inter = await inter_session.get(url=url, headers=headers)
+        soup = BeautifulSoup(await req_inter.text(), 'lxml')
+        result_inter_search = soup.find('div', attrs={"id": "rec431563719"}).text.lstrip(
+            "№;Наименование; Источник ").split("\n")
+        inter_data = {}
+        for iter_note in result_inter_search:
+            need_iter_text = str(iter_note.split(";")[1]).split("link=")
+            name = need_iter_text[0].strip()
+            link = f"{url}{need_iter_text[1].strip()}"
+            inter_data.update({name: link})
+        await message.message.edit_reply_markup(keyboards.talk(data=inter_data))

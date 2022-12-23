@@ -8,10 +8,22 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
+async def isint(exam_string):
+    """Функция проверки является ли строка целым числом"""
+    try:
+        int(exam_string)
+        return True
+    except ValueError:
+        return False
+
+
 @bot.callback_query_handler(text='calc')
 async def calc_plastic(callback: types.CallbackQuery):
     """ Старт калькулятора по расчету цены на трубу"""
-    await history.analytics_callback(message=callback)
+    try:
+        await history.analytics_callback(message=callback)
+    except:
+        pass
     await callback.message.edit_reply_markup(keyboards.start_plastic_price(calc=True))
 
 
@@ -54,10 +66,10 @@ async def calc_diameter(callback: types.CallbackQuery):
         change_SDR = "17,6"
     else:
         change_SDR = SDR
-    await auth_token.send_message(callback.from_user.id, text=f"Вводные:\n"
-                                                              f"SDR: {change_SDR}\n"
-                                                              f"Диаметр: {diameter}\n"
-                                                              f"<b>Введите длину трубопровода(трубы) в метрах</b>",
+    await auth_token.send_message(callback.from_user.id, text=f"Вводные данные:\n"
+                                                              f"<b>SDR</b>: {change_SDR}\n"
+                                                              f"<b>Диаметр</b>: {diameter}\n"
+                                                              f"<b>Введите длину трубы в метрах</b>",
                                   parse_mode="HTML")
     await FSMCalc.metr.set()
     state = Dispatcher.get_current().current_state()
@@ -78,7 +90,7 @@ async def give_pipe_price(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['plastic_price'] = message
     await FSMCalc.next()
-    await message.reply('Введите стоимость полиэтилена за 1 кг.')
+    await message.reply('Введите стоимость полиэтилена за 1 кг (без копеек).')
 
 
 async def calc_diameter_result(message: types.Message, state: FSMContext):
@@ -87,29 +99,51 @@ async def calc_diameter_result(message: types.Message, state: FSMContext):
         SDR = data.as_dict()['SDR']
         diameter = data.as_dict()['diameter']
         price = int(data.as_dict()['price'])
-        plastic_price = int(data.as_dict()['plastic_price']['text'])
+        if await isint(data.as_dict()['plastic_price']['text']):
+            plastic_price = int(data.as_dict()['plastic_price']['text'])
+        else:
+            plastic_price = None
+            await auth_token.send_message(message.from_user.id,
+                                          text='Введена некорректная цена или метраж',
+                                          reply_markup=keyboards.back_to_menu_from_calc())
         mass = await sqlite_db.sql_mass_pipe_calc(SDR=SDR, diameter=diameter)
         data['metr'] = message.text
         try:
             result_mass = float(str(mass).replace(",", "."))
         except:
-            result_mass = int(str(mass))
+            if await isint(str(mass)):
+                result_mass = int(str(mass))
+            else:
+                result_mass = None
+                await auth_token.send_message(message.from_user.id,
+                                              text='Отсутствует информация. Вероятно соотношение SDR и диаметра некорректно',
+                                              reply_markup=keyboards.back_to_menu_from_calc())
         try:
             result_metr = float(str(data['metr']).replace(",", "."))
         except:
-            result_metr = int(str(data['metr']))
+            if await isint(str(data['metr'])):
+                result_metr = int(str(data['metr']))
+            else:
+                result_metr = None
+                await auth_token.send_message(message.from_user.id,
+                                              text='Введен неокоренный метраж. Необходимо ввести целое число',
+                                              reply_markup=keyboards.back_to_menu_from_calc())
     if mass == 0:
         await auth_token.send_message(message.from_user.id,
                                       text='Отсутствует информация. Вероятно соотношение SDR и диаметра некорректно',
                                       reply_markup=keyboards.back_to_menu_from_calc())
+    elif result_mass is None:
+        pass
+    elif plastic_price is None:
+        pass
     elif plastic_price > 0:
         mass_result = int(result_mass * result_metr)
         calc_result = int((result_mass * result_metr * plastic_price) * 1.27)
         calc_result_after_format = '{0:,}'.format(calc_result).replace(',', ' ')
-        await auth_token.send_message(message.from_user.id, text=f'Общий вес труб {mass_result} кг.\n'
-                                                                 f'Минимальная стоимость труб, '
-                                                                 f'без учета доставки {calc_result_after_format} руб.',
-                                      reply_markup=keyboards.back_to_menu_from_calc())
+        await auth_token.send_message(message.from_user.id, text=f'<b>Общий вес труб</b>: {mass_result} кг.\n'
+                                                                 f'<b>Минимальная стоимость труб, '
+                                                                 f'без учета доставки</b>: {calc_result_after_format} руб.',
+                                      reply_markup=keyboards.back_to_menu_from_calc(), parse_mode="HTML")
     else:
         calc_result = int(result_mass * result_metr)
         await auth_token.send_message(message.from_user.id,

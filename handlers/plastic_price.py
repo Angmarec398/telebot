@@ -7,7 +7,10 @@ from keyboards import keyboards
 
 @bot.callback_query_handler(text='plastic_price')
 async def sert_exam(message: types.CallbackQuery):
-    await history.analytics_callback(message=message)
+    try:
+        await history.analytics_callback(message=message)
+    except:
+        pass
     await message.message.edit_reply_markup(keyboards.start_plastic_price())
 
 

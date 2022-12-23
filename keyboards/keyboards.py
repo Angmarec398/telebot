@@ -13,24 +13,25 @@ def start_keyboard(message):
     """Клавиатура основного меню"""
     markup = types.InlineKeyboardMarkup()
     start_1 = types.InlineKeyboardButton(text="Поиск", callback_data='Поиск')
-    start_2 = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
-    start_3 = types.InlineKeyboardButton(text="Калькулятор", callback_data="plast_calc")
-    markup.add(start_2, start_3)
+    start_plastic_price_button = types.InlineKeyboardButton(text="Стоимость сырья", callback_data="plastic_price")
+    start_calc_button = types.InlineKeyboardButton(text="Калькулятор", callback_data="plast_calc")
+    markup.add(start_plastic_price_button, start_calc_button)
     # if message.from_user.id in admin_list:
     #     start_4 = types.InlineKeyboardButton(text="Проверка", callback_data="Проверка")
     #     markup.add(start_1, start_4)
     #     markup.add(start_2, start_3)
     # else:
     #     markup.add(start_2, start_3)
-    start_5 = types.InlineKeyboardButton(text="Проверка организации по ИНН", callback_data="exam_inn")
-    markup.add(start_5)
-    start_6 = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
-    markup.add(start_6)
-    start_7 = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
-    markup.add(start_7)
+    start_talk_button = types.InlineKeyboardButton(text="Разъяснения", callback_data="Разъяснения")
+    start_checklist_button = types.InlineKeyboardButton(text="Чек-листы", callback_data='check_list')
+    markup.add(start_talk_button, start_checklist_button)
+    start_exam_inn_button = types.InlineKeyboardButton(text="Проверка организации по ИНН", callback_data="exam_inn")
+    markup.add(start_exam_inn_button)
+    start_exam_sert_button = types.InlineKeyboardButton(text="Сертификаты", callback_data="Сертификаты")
+    markup.add(start_exam_sert_button)
     if message.from_user.id in admin_list:
-        start_8 = types.InlineKeyboardButton(text='Просмотр аналитики', callback_data="analytics")
-        markup.add(start_8)
+        start_analytics_button = types.InlineKeyboardButton(text='Просмотр аналитики', callback_data="analytics")
+        markup.add(start_analytics_button)
     return markup
 
 
@@ -216,9 +217,9 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await callback.message.edit_reply_markup()
                 await auth_token.send_message(callback.from_user.id,
-                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
-                                              reply_markup=back_to_menu_from_plastic_price())
+                                              f'<b>Марка</b>: {plastic_item[1]}\n<b>Изготовитель</b>: {plastic_item[0]}\n'
+                                              f'<b>Стоимость за тонну</b>: {plastic_item[2]}\n<b>Информация от {price_data[0][0]}</b>',
+                                              reply_markup=back_to_menu_from_plastic_price(), parse_mode="HTML")
     elif sheet_name == 'pp':
         pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ППР)'!A2:C15",
                                            path="lab-reestr-6aa81a2d3150.json")
@@ -228,9 +229,9 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await callback.message.edit_reply_markup()
                 await auth_token.send_message(callback.from_user.id,
-                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
-                                              reply_markup=back_to_menu_from_plastic_price())
+                                              f'<b>Марка</b>: {plastic_item[1]}\n<b>Изготовитель</b>: {plastic_item[0]}\n'
+                                              f'<b>Стоимость за тонну</b>: {plastic_item[2]}\n<b>Информация от {price_data[0][0]}</b>',
+                                              reply_markup=back_to_menu_from_plastic_price(), parse_mode="HTML")
     elif sheet_name == 'pvh':
         pp_list = plastic_price.sheet_data("1zq3eIl3ppLUU-3WqtuT1Da9unN7qZFGzyvEycUR7WlY", "'Актуальная (ПВХ)'!A2:C15",
                                            path="lab-reestr-6aa81a2d3150.json")
@@ -240,9 +241,9 @@ async def plastic_brain(callback: types.CallbackQuery):
             if plastic_item[1] == plastic_name:
                 await callback.message.edit_reply_markup()
                 await auth_token.send_message(callback.from_user.id,
-                                              f'Марка: {plastic_item[1]}\nИзготовитель: {plastic_item[0]}\n'
-                                              f'Стоимость за тонну: {plastic_item[2]}\nИнформация от {price_data[0][0]}',
-                                              reply_markup=back_to_menu_from_plastic_price())
+                                              f'<b>Марка</b>: {plastic_item[1]}\n<b>Изготовитель</b>: {plastic_item[0]}\n'
+                                              f'<b>Стоимость за тонну</b>: {plastic_item[2]}\n<b>Информация от {price_data[0][0]}</b>',
+                                              reply_markup=back_to_menu_from_plastic_price(), parse_mode="HTML")
 
 
 def start_calc(price=0):
@@ -287,6 +288,7 @@ def diameter_calc(data, SDR=None, back_to_menu=True, price=None):
 
 
 def talk(data):
+    """Вывод и информации в виде клавиатуры по разъяснениям АПТС или сторонних организаций"""
     markup = InlineKeyboardMarkup()
     markup.row_width = 1
     markup.add(*[InlineKeyboardButton(text=text,
@@ -294,6 +296,28 @@ def talk(data):
                  text, link in data.items()])
     button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
     markup.add(button_menu)
+    return markup
+
+
+def start_check_list():
+    """Стартовая клавиатура в разделе Стоимость полиэтилена(calk=None).
+    Стартовая клавиатура в разделе Калькулятор трубы(calk=True).
+    Следующие функции plastic_pe или plastic_pp или plastic_pvh в модуле plastic_price"""
+    markup = types.InlineKeyboardMarkup()
+    tittle_button = types.InlineKeyboardButton(text="Выберите направление", callback_data=f'start_menu')
+    markup.add(tittle_button)
+    button_18599 = types.InlineKeyboardButton(text="ГОСТ 18599", callback_data=f'check_18599')
+    markup.add(button_18599)
+    button_58121 = types.InlineKeyboardButton(text="ГОСТ Р 58121(50838)", callback_data=f"check_58121")
+    markup.add(button_58121)
+    button_32414 = types.InlineKeyboardButton(text="ГОСТ 32414", callback_data=f"check_32414")
+    markup.add(button_32414)
+    button_54475 = types.InlineKeyboardButton(text="ГОСТ 54475", callback_data=f"check_54475")
+    markup.add(button_54475)
+    button_32415 = types.InlineKeyboardButton(text="ГОСТ 32415,53630", callback_data=f"check_32415")
+    markup.add(button_32415)
+    start_4 = types.InlineKeyboardButton(text="Назад в меню ↩", callback_data=f"start_menu")
+    markup.add(start_4)
     return markup
 
 
@@ -324,13 +348,30 @@ def back_to_menu_from_sert_exam():
     return markup
 
 
-def back_to_menu_from_exam_inn():
-    """Кнопки "Назад в меню" или "Проверить еще" в разделе Проверка по ИНН """
+def back_to_menu_from_checklist():
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Чек-листы """
     markup = InlineKeyboardMarkup()
     button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
-    button_inn = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='exam_inn')
-    markup.add(button_inn, button_menu)
+    button_checklist = InlineKeyboardButton(text="Другие чек-листы", callback_data='check_list')
+    markup.add(button_checklist, button_menu)
     return markup
+
+
+def back_to_menu_from_exam_inn(order=True):
+    """Кнопки "Назад в меню" или "Проверить еще" в разделе Проверка по ИНН """
+    markup = InlineKeyboardMarkup()
+    if order:
+        order_button = InlineKeyboardButton(text="Запросить подробную проверку", url="https://rapts.ru/option")
+        markup.add(order_button)
+        button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+        button_inn = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='exam_inn')
+        markup.add(button_inn, button_menu)
+        return markup
+    else:
+        button_menu = InlineKeyboardButton(text='Назад в меню ↩', callback_data='start_menu')
+        button_inn = InlineKeyboardButton(text="Проверить еще 🔎", callback_data='exam_inn')
+        markup.add(button_inn, button_menu)
+        return markup
 
 # def cancel_sert_exam():
 #     """Кнопки "Назад в меню" или "Проверить еще" в разделе Калькулятор трубы """

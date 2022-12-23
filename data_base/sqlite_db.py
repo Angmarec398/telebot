@@ -9,6 +9,7 @@ def sql_start():
     """ Создание БД """
     global base, cur
     base = sqlite3.connect('rapts.db')
+    # base = sqlite3.connect('/home/rapts.db')
     cur = base.cursor()
     if base:
         print("Database is connect")
@@ -64,7 +65,7 @@ async def sql_get_analytics(message: types.CallbackQuery):
     cur.execute(f'SELECT * FROM analytics')
     data = cur.fetchall()
     all_user_count = []
-    for item_request in data[0]:
+    for item_request in data:
         user_id_from_requsest = item_request[1]
         if user_id_from_requsest in all_user_count:
             pass
