@@ -8,8 +8,8 @@ from keyboards import keyboards
 def sql_start():
     """ Создание БД """
     global base, cur
-    base = sqlite3.connect('rapts.db')
-    # base = sqlite3.connect('/home/rapts.db')
+    # base = sqlite3.connect('rapts.db')
+    base = sqlite3.connect('/home/rapts.db')
     cur = base.cursor()
     if base:
         print("Database is connect")

@@ -16,7 +16,6 @@ if __name__ == '__main__':
     admin.reg_handlers_admin(bot=bot)
     sert_exam.reg_handlers_sert(bot=bot)
     reputaion.reg_handlers_manufacture(bot=bot)
-
     other.reg_handlers_other_message(bot=bot)
 
     # Запускаем бота
